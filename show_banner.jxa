@@ -1,0 +1,101 @@
+#!/usr/bin/osascript -l JavaScript
+
+function run(argv) {
+  ObjC.import("AppKit");
+  ObjC.import("Foundation");
+
+  var logPath = "/tmp/meeting-reminder-banner.log";
+  function log(msg) {
+    try {
+      var line = new Date().toISOString() + " " + msg + "\n";
+      var data = $.NSString.alloc.initWithUTF8String(line);
+      var fh = $.NSFileHandle.fileHandleForWritingAtPath(logPath);
+      if (!fh) {
+        $.NSFileManager.defaultManager.createFileAtPathContentsAttributes(logPath, null, null);
+        fh = $.NSFileHandle.fileHandleForWritingAtPath(logPath);
+      }
+      fh.seekToEndOfFile();
+      fh.writeData(data.dataUsingEncoding($.NSUTF8StringEncoding));
+      fh.closeFile();
+    } catch (e) {}
+  }
+
+  var text = argv.length > 0 ? argv[0] : "Meeting Reminder";
+  var slideDuration = 12000;
+  var bannerHeight = 88;
+
+  log("start banner: " + text);
+
+  var app = $.NSApplication.sharedApplication;
+  app.setActivationPolicy($.NSApplicationActivationPolicyAccessory);
+  app.activateIgnoringOtherApps(true);
+
+  var screen = $.NSScreen.mainScreen;
+  if (!screen) {
+    log("error: no main screen");
+    throw new Error("No main screen");
+  }
+
+  var frame = screen.frame;
+  var screenWidth = frame.size.width;
+  var y = frame.origin.y + frame.size.height - bannerHeight;
+
+  log("screen width=" + screenWidth + " y=" + y);
+
+  var window = $.NSWindow.alloc.initWithContentRectStyleMaskBackingDefer(
+    $.NSMakeRect(screenWidth, y, screenWidth, bannerHeight),
+    $.NSWindowStyleMaskBorderless,
+    $.NSBackingStoreBuffered,
+    false
+  );
+
+  window.setLevel(1000);
+  window.setBackgroundColor(
+    $.NSColor.colorWithCalibratedRedGreenBlueAlpha(0.08, 0.1, 0.18, 0.95)
+  );
+  window.setOpaque(false);
+  window.setHasShadow(true);
+  window.setIgnoresMouseEvents(true);
+  window.setCollectionBehavior(
+    $.NSWindowCollectionBehaviorCanJoinAllSpaces |
+      $.NSWindowCollectionBehaviorFullScreenAuxiliary |
+      $.NSWindowCollectionBehaviorStationary |
+      $.NSWindowCollectionBehaviorIgnoresCycle
+  );
+
+  var label = $.NSTextField.alloc.initWithFrame(
+    $.NSMakeRect(24, (bannerHeight - 40) / 2, screenWidth - 48, 40)
+  );
+  label.setStringValue(text);
+  label.setBezeled(false);
+  label.setDrawsBackground(false);
+  label.setEditable(false);
+  label.setSelectable(false);
+  label.setTextColor($.NSColor.whiteColor);
+  label.setFont($.NSFont.boldSystemFontOfSize(24));
+  label.setAlignment($.NSTextAlignmentCenter);
+
+  window.setContentView(label);
+  window.makeKeyAndOrderFront(null);
+  log("window shown");
+
+  var startX = screenWidth;
+  var endX = -screenWidth;
+  var start = Date.now();
+
+  while (true) {
+    var progress = Math.min((Date.now() - start) / slideDuration, 1.0);
+    var eased = 1 - Math.pow(1 - progress, 3);
+    var x = startX + (endX - startX) * eased;
+
+    window.setFrameDisplay($.NSMakeRect(x, y, screenWidth, bannerHeight), true);
+
+    if (progress >= 1.0) {
+      break;
+    }
+    $.NSThread.sleepForTimeInterval(1 / 60);
+  }
+
+  window.orderOut(null);
+  log("banner finished");
+}

@@ -1,0 +1,17 @@
+{
+  "poll_interval_seconds": 60,
+  "reminder_minutes_before": 5,
+  "banner_duration_seconds": 12,
+  "only_meetings": true,
+  "require_location": false,
+  "title_keywords": [
+    "会议", "Meeting", "meet", "评审", "Review", "1:1", "周会",
+    "sync", "Standup", "stand-up", "面试", "讨论", "沟通", "对齐",
+    "kickoff", "demo", "汇报", "晨会", "站会"
+  ],
+  "exclude_keywords": [
+    "生日", "birthday", "纪念日", "假", "leave", "休假",
+    "健身", "吃饭", "午餐", "晚餐", "提醒", "reminder"
+  ],
+  "calendar_names": []
+}

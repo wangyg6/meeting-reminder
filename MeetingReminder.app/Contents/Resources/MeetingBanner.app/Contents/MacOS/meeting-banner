@@ -1,0 +1,14 @@
+#!/bin/bash
+ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
+MSG_FILE="/tmp/meeting-reminder-msg.txt"
+if [ -f "$MSG_FILE" ]; then
+  TEXT="$(cat "$MSG_FILE")"
+elif [ -n "$1" ]; then
+  TEXT="$1"
+fi
+if [ -z "$TEXT" ]; then
+  TEXT="Meeting Reminder"
+fi
+
+echo "$(date '+%Y-%m-%d %H:%M:%S') banner: $TEXT" >> /tmp/meeting-reminder-banner.log
+exec "$ROOT/show_banner" "$TEXT"

@@ -2,13 +2,15 @@
 
 会议开始前，卡通海豚拖着横幅游过屏幕。
 
-## 安装
+## 自行生成并安装
 
 ```bash
+git clone xxx
 cd meeting-reminder
 ./setup.sh
 open MeetingReminder.app
 ```
+或者直接release中下载即可。
 
 ## 功能
 

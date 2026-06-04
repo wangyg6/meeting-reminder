@@ -1,5 +1,6 @@
 # Meeting Reminder for macOS
 ![动图演示](./输出.gif)
+
 会议开始前，卡通海豚拖着横幅游过屏幕。
 
 ## 自行生成并安装
